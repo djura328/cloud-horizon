@@ -1,5 +1,12 @@
 <template>
   <v-row justify="center">
+    <v-col cols="12" sm="8" v-if="loader">
+      <v-progress-linear
+              indeterminate
+              color="primary"
+      ></v-progress-linear>
+      Loading... Please wait
+    </v-col>
     <v-col cols="12" sm="8">
       <v-data-table
               :headers="plantsHeaders"
@@ -178,6 +185,7 @@ import config from '../config';
 export default {
     data(){
         return {
+          loader: false,
           loading: false,
 
           namePlant: null,
@@ -228,28 +236,24 @@ export default {
         }
     },
     created() {
-      this.getPlant();
-      this.getPlantType();
-      this.getWarehouse();
+        this.loader = true
+        Promise.all([this.getPlant(), this.getPlantType(), this.getWarehouse()]).then((values) => {
+            this.plants = values[0].data
+            this.plantType = values[1].data
+            this.warehouse = values[2].data
+        }).finally(() => {
+            this.loader = false
+        })
     },
     methods: {
         getPlant(){
-            axios.get(`${config.apiUrl}/plant`).then(res => {
-                console.log(res)
-                this.plants = res.data
-            })
+            return axios.get(`${config.apiUrl}/plant`)
         },
         getPlantType(){
-            axios.get(`${config.apiUrl}/plant-type`).then(res => {
-                console.log(res)
-                this.plantType = res.data
-            })
+            return axios.get(`${config.apiUrl}/plant-type`)
         },
         getWarehouse(){
-            axios.get(`${config.apiUrl}/warehouse`).then(res => {
-                console.log(res)
-                this.warehouse = res.data
-            })
+            return axios.get(`${config.apiUrl}/warehouse`)
         },
         save(){
             this.loading = true
