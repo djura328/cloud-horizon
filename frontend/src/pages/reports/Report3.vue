@@ -8,6 +8,8 @@
                     :items-per-page="20"
                     class="elevation-1"
                     show-expand
+                    :expanded="[items[0]]"
+                    single-expand
                     :loading="loading"
                     loading-text="Loading... Please wait"
             >
